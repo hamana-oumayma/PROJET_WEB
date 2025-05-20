@@ -137,22 +137,34 @@
             </form>
 
             <script>
-                function toggleFields(role) {
-                    const etudiantFields = document.getElementById('etudiant-fields');
-                    const entrepriseFields = document.getElementById('entreprise-fields');
+               function toggleFields(role) {
+    const etudiantFields = document.getElementById('etudiant-fields');
+    const entrepriseFields = document.getElementById('entreprise-fields');
 
-                    if (role === 'etudiant') {
-                        etudiantFields.style.display = 'block';
-                        entrepriseFields.style.display = 'none';
-                    } else {
-                        etudiantFields.style.display = 'none';
-                        entrepriseFields.style.display = 'block';
-                    }
-                }
+    // Étudiant
+    const etudiantInputs = etudiantFields.querySelectorAll('input');
+    // Entreprise
+    const entrepriseInputs = entrepriseFields.querySelectorAll('input');
 
-                window.onload = () => {
-                    toggleFields(document.getElementById('role').value);
-                };
+    if (role === 'etudiant') {
+        etudiantFields.style.display = 'block';
+        entrepriseFields.style.display = 'none';
+
+        // Activer required pour étudiant
+        etudiantInputs.forEach(input => input.required = true);
+        // Désactiver required pour entreprise
+        entrepriseInputs.forEach(input => input.required = false);
+    } else {
+        etudiantFields.style.display = 'none';
+        entrepriseFields.style.display = 'block';
+
+        // Activer required pour entreprise
+        entrepriseInputs.forEach(input => input.required = true);
+        // Désactiver required pour étudiant
+        etudiantInputs.forEach(input => input.required = false);
+    }
+}
+
             </script>
         </div>
         <div class="image-container">

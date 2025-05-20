@@ -229,13 +229,13 @@ th {
 }
 
 .status-approved {
-    background-color: #d1fae5;
-    color: #065f46;
+    background-color: #d1fae5 !important;
+    color: #065f46 !important;
 }
 
 .status-rejected {
-    background-color: #fee2e2;
-    color: #991b1b;
+    background-color: #fee2e2 !important;
+    color: #991b1b !important;
 }
 
 /* Action Buttons */
@@ -263,8 +263,8 @@ th {
 }
 
 .view-btn {
-    background-color: #ff9800;
-    color: white;
+    background-color:rgb(203, 199, 254) !important;
+    color:rgb(122, 40, 199) !important;
 }
 
 .delete-btn {

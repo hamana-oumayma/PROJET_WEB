@@ -129,8 +129,8 @@ $offres = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <h4>Bonjour, <?= htmlspecialchars($prenom . ' ' . $nom) ?> !</h4>
         </div>
     </div>
-    <a href="../dashboard.php" class="logout-btn">
-        <i class="fas fa-sign-out-alt"></i> Retour</a>
+    <a href="../dashboard.php" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Retour</a>
 </header>
 
 <h3 class="section-title"><i class="fas fa-file-alt"></i> Les offres disponibles </h3>
@@ -176,7 +176,7 @@ $offres = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <h3><i class="fas fa-paper-plane"></i> Postuler à cette offre</h3>
             <span class="close-btn" onclick="closePostulerModal()">&times;</span>
         </div>
-        <form id="postulerForm" enctype="multipart/form-data" method="POST" action="postuler.php">
+        <form id="postulerForm" enctype="multipart/form-data" method="POST" action="../postuler.php">
             <input type="hidden" id="offreId" name="id_offre">
             
             <div class="required-documents">

@@ -58,6 +58,16 @@ if (!empty($documents)) {
     body a i {
         font-size: 16px;
     }
+    
+        .btn-back {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 10px 18px;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
     </style>
 </head>
 <body>
@@ -65,8 +75,8 @@ if (!empty($documents)) {
     <div class="header-info">
         <h1>Documents de la candidature</h1>
     </div>
-    <a href="candidatures.php?id_offre=<?= $id_offre ?>" class="logout-btn">
-        <i class="fas fa-sign-out-alt"></i> Retour</a>
+    <a href="candidatures.php?id_offre=<?= $id_offre ?>" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Retour</a>
 </header>
 
 <?php if ($documents): ?>

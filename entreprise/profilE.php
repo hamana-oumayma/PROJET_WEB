@@ -97,8 +97,6 @@ if (empty($initials)) {
     <ul>
         <li><a href="../entreprise.php"><i class="fas fa-home"></i> Tableau de bord</a></li>
         <li><a href="offreE.php"><i class="fas fa-briefcase"></i> Gérer les offres</a></li>
-        <li><a href="candidats.php"><i class="fas fa-users"></i> Candidats</a></li>
-        <li><a href="documentsE.php"><i class="fas fa-file-contract"></i> Documents</a></li>
         <li><a href="profilE.php" class="active"><i class="fas fa-building"></i> Profil Entreprise</a></li>
     </ul>
 </nav>

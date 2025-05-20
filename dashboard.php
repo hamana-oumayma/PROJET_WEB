@@ -82,8 +82,7 @@ if (isset($_GET['download'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="assets/style.css">
     <style>
-        /* Styles pour les modals */
-        /* Styles modaux */
+        
 .modal {
     display: none;
     position: fixed;
@@ -158,7 +157,7 @@ if (isset($_GET['download'])) {
         .upload-btn {  background-color: #d1fae5;
             color: #065f46; }
         .download-btn { background-color: #2196F3; color: white; }
-        .view-btn { background-color:rgb(245, 252, 205); color:hsl(60, 12.00%, 39.20%); }
+        .view-btn { background-color:rgb(203, 199, 254); color:rgb(122, 40, 199); }
         .postuler-btn {  background-color: #fee2e2;
             color: #991b1b;}
         
@@ -219,6 +218,21 @@ if (isset($_GET['download'])) {
         }
 
 
+
+        .status-badge.accepte { /* Retirez l'accent 'é' */
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.en_attente {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.refuse { /* Retirez l'accent 'é' */
+    background-color: #fee2e2;
+    color: #991b1b;
+}
     </style>
 </head>
 <body>
@@ -276,20 +290,24 @@ if (isset($_GET['download'])) {
             </thead>
             <tbody>
             <?php foreach ($candidatures as $candidature): ?>
-                <tr>
-                    <td><?= htmlspecialchars($candidature['entreprise']) ?></td>
-                    <td><?= htmlspecialchars($candidature['poste']) ?></td>
-                    <td><?= htmlspecialchars($candidature['date_debut']) ?></td>
-                    <td><?= htmlspecialchars($candidature['date_fin']) ?></td>
-                    <td><span class="status-badge"><?= htmlspecialchars(ucfirst($candidature['statut'])) ?></span></td>
-                    <td>
-                        <a href="./model/candidatures.php?id_candidature=<?= urlencode($candidature['id_candidature']) ?>" class="action-btn view-btn">
-                            <i class="fas fa-eye"></i> Voir
-                        </a>
-                       
-                    </td>
-                </tr>
-            <?php endforeach; ?>
+    <tr>
+        <td><?= htmlspecialchars($candidature['entreprise']) ?></td>
+        <td><?= htmlspecialchars($candidature['poste']) ?></td>
+        <td><?= htmlspecialchars($candidature['date_debut']) ?></td>
+        <td><?= htmlspecialchars($candidature['date_fin']) ?></td>
+        <td>
+            <span class="status-badge <?= strtolower(str_replace([' ', 'é'], ['_', 'e'], $candidature['statut'])) ?>">
+                <?= ucfirst($candidature['statut']) ?>
+            </span>
+        </td>
+        <td>
+            <a href="./model/candidatures.php?id_candidature=<?= urlencode($candidature['id_candidature']) ?>" class="action-btn view-btn">
+                <i class="fas fa-eye"></i> Voir
+            </a>
+        </td>
+    </tr>
+<?php endforeach; ?>
+
             </tbody>
         </table>
     </div>

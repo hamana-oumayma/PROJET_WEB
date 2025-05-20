@@ -88,16 +88,16 @@ try {
             transform: translateY(-2px);
         }
         .btn-success { 
-            background-color: #28a745; 
-            color: white;
+           background-color: #d1fae5; 
+           color: #065f46;
         }
         .btn-danger { 
-            background-color: #dc3545; 
-            color: white;
+           background-color: #fee2e2;
+            color: #991b1b;
         }
         .btn-info { 
-            background-color: #17a2b8; 
-            color: white;
+            background-color:rgb(168, 160, 253) !important;
+    color:rgb(255, 255, 255) !important;
         }
         .no-data {
             background-color: #f8f9fa;
@@ -110,6 +110,14 @@ try {
         .action-cell {
             display: flex;
             gap: 8px;
+        }
+         .btn-back {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 10px 18px;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
         }
     </style>
 </head>
@@ -129,8 +137,8 @@ try {
         <h1> Les Candidatures </h1>
           
     </div>
-    <a href="../entreprise.php" class="logout-btn">
-        <i class="fas fa-sign-out-alt"></i> Retour</a>
+    <a href="../entreprise.php" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Retour</a>
 </header>
 
    

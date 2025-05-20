@@ -18,11 +18,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Erreur de connexion : " . $e->getMessage());
     }
 
+    // Récupération des données
     $role = $_POST['role'] ?? '';
     $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
     $password = password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT);
 
+    // Vérification si email existe déjà
     if ($role === 'etudiant') {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM etudiants WHERE email = ?");
+        $stmt->execute([$email]);
+        if ($stmt->fetchColumn() > 0) {
+            die("⚠️ Un compte étudiant avec cet e-mail existe déjà.");
+        }
+
         $nom = $_POST['nom_etudiant'] ?? '';
         $prenom = $_POST['prenom'] ?? '';
 
@@ -31,6 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$nom, $prenom, $email, $password]);
 
     } elseif ($role === 'entreprise') {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM entreprises WHERE email = ?");
+        $stmt->execute([$email]);
+        if ($stmt->fetchColumn() > 0) {
+            die("⚠️ Un compte entreprise avec cet e-mail existe déjà.");
+        }
+
         $nom = $_POST['nom_entreprise'] ?? '';
         $adresse = $_POST['adresse'] ?? '';
         $telephone = $_POST['telephone'] ?? '';
@@ -40,10 +54,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$nom, $adresse, $email, $telephone, $password]);
 
     } else {
-        die("Rôle invalide.");
+        die("❌ Rôle invalide.");
     }
 
-    // Alerte + redirection
+    // Affichage d'un message de succès + redirection
     echo '
     <!DOCTYPE html>
     <html lang="fr">
@@ -69,6 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </body>
     </html>';
     exit();
+
 } else {
-    echo "Le formulaire n'a pas été soumis correctement.";
+    echo "❌ Le formulaire n'a pas été soumis correctement.";
 }
+?>

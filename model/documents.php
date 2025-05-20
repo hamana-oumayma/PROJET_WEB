@@ -60,7 +60,6 @@ $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Documents</title>
     <link rel="stylesheet" href="../assets/style.css">
-    <!-- Ajouter Font Awesome pour les icônes -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* Style général des boutons d'action */
@@ -92,7 +91,7 @@ $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 
-         .btn-back{
+         .btn-back {
             background-color: #fee2e2;
             color: #991b1b;
             padding: 10px 18px;
@@ -100,7 +99,6 @@ $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-radius: 8px;
             transition: all 0.3s;
         }
-        
  
         </style>
 </head>
@@ -114,8 +112,8 @@ $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <h4>Bonjour, <?= htmlspecialchars($prenom . ' ' . $nom) ?> !</h4>
         </div>
     </div>
-    <a href="../dashboard.php" class="logout-btn">
-        <i class="fas fa-sign-out-alt"></i> Retour</a>
+    <a href="../dashboard.php" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Retour</a>
 </header>
 
 <h3 class="section-title"><i class="fas fa-file-alt"></i> Mes documents</h3>

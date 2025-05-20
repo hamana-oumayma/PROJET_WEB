@@ -206,8 +206,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
         }
 
         .btn-primary {
-            background-color: #fef3c7;
-            color: #92400e;
+            background-color:rgb(203, 199, 254) !important;
+    color:rgb(153, 49, 250) !important;
         }
 
         table {
@@ -251,16 +251,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
     transform: translateY(-50%); /* Centre verticalement */
 }
 .btn-primary {
-    background-color: #fef3c7;
-    color: #92400e;
+   background-color:rgb(203, 199, 254) !important;
+    color:rgb(153, 49, 250) !important;
    
     transition: none !important; 
 }
 
 
 .btn-primary:hover, .btn-primary:focus {
-    background-color: #fef3c7 !important;
-    color: #92400e !important;
+
+background-color:rgb(203, 199, 254) !important;
+    color:rgb(151, 41, 253) !important;
     transform: none !important;
     box-shadow: none !important;
 }
@@ -344,7 +345,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
         <ul>
             <li><a href="entreprise.php" class="active"><i class="fas fa-home"></i> Tableau de bord</a></li>
             <li><a href="./entreprise/offreE.php"><i class="fas fa-briefcase"></i> Mes offres</a></li>
-            <li><a href="./entreprise/candidatures.php"><i class="fas fa-file-alt"></i> Candidatures</a></li>
             <li><a href="./entreprise/profilE.php"><i class="fas fa-user"></i> Mon profil</a></li>
         </ul>
     </nav>

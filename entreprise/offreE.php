@@ -87,8 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
             font-size: 1.1rem !important;
             min-width: 180px !important;
             
-            background-color: #fef3c7 !important;
-            color: #92400e !important;
+            background-color:rgb(203, 199, 254) !important;
+            color:rgb(119, 46, 187) !important;
             border: none !important;
             border-radius: 8px !important;
             transition: all 0.2s ease;
@@ -153,8 +153,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
     padding: 6px 10px;
     font-size: 0.85rem;
     min-width: auto;
-    background-color: #fef3c7;
-    color: #92400e;
+    background-color:rgb(203, 199, 254);
+    color:rgb(122, 40, 199);
     border: none;
     border-radius: 6px;
     display: inline-flex;
@@ -175,6 +175,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
     transform: translateY(-1px);
 }
 
+        .btn-back {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 10px 18px;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+
     </style>
 </head>
 <body>
@@ -187,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
             <p><?= htmlspecialchars($entreprise['nom']) ?></p>
         </div>
     </div>
-    <a href="../entreprise.php" class="logout-btn">
+    <a href="../entreprise.php" class="btn-back">
         <i class="fas fa-arrow-left"></i> Retour
     </a>
 </header>

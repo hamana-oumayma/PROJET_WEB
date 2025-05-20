@@ -23,6 +23,12 @@ if (!$etudiant) {
     die("Étudiant non trouvé");
 }
 
+// Générer les initiales
+$initials = '';
+if (!empty($etudiant['prenom']) && !empty($etudiant['nom'])) {
+    $initials = strtoupper(substr($etudiant['prenom'], 0, 1)) . strtoupper(substr($etudiant['nom'], 0, 1));
+}
+
 // Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom = $_POST['nom'] ?? '';
@@ -43,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if ($stmt->execute()) {
         $_SESSION['message'] = "Profil mis à jour avec succès!";
-        header("Location: profil.php");
+        header("Location: profil.php"); // Corrected path
         exit();
     } else {
         $error = "Erreur lors de la mise à jour du profil";
@@ -58,6 +64,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Modifier mon profil</title>
     <link rel="stylesheet" href="../assets/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        
+       .edit-btn {
+    background-color:rgb(37, 53, 88);
+    color: white;
+    padding: 8px 16px; 
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px; 
+    min-width: 120px; 
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 0 auto; 
+    display: block; 
+    width: auto; 
+    margin-right: 5px;
+}
+
+
+.edit-btn.compact {
+    min-width: 90px;
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+
+.edit-btn:active {
+    transform: scale(0.95);
+}
+ .btn-back {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 10px 18px;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+
+        </style>
 </head>
 <body>
 <header>
@@ -70,8 +120,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <div class="header-actions">
         
-        <a href="../logout.php" class="logout-btn">
-            <i class="fas fa-sign-out-alt"></i> Se déconnecter
+        <a href="profil.php" class="btn-back">
+            <i class="fas fa-arrow-left"></i> retour
         </a>
     </div>
 </header>
@@ -101,7 +151,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" class="edit-btn">
                 <i class="fas fa-save"></i> Enregistrer
             </button>
-          
         </div>
     </form>
 </div>
