@@ -67,9 +67,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         
-        .btn-back {
-            background-color: #fee2e2;
-            color: #991b1b;
+         .btn-back {
+            background-color: #1e3a5f;
+            color:hsl(218, 100.00%, 98.40%);
             padding: 10px 18px;
             text-decoration: none;
             border-radius: 8px;
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
      
     <div class="form-group">
-    <button type="submit" class="action-btn" style="background-color: #4CAF50;">
+    <button type="submit" class="action-btn" style="background-color:rgb(170, 248, 172);">
             <i class="fas fa-save"></i> Enregistrer
         </button>
     </div>

@@ -23,68 +23,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
     $password = password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT);
 
-    // Vérification si email existe déjà
-    if ($role === 'etudiant') {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM etudiants WHERE email = ?");
-        $stmt->execute([$email]);
-        if ($stmt->fetchColumn() > 0) {
-            die("⚠️ Un compte étudiant avec cet e-mail existe déjà.");
-        }
+    // Vérification si email existe déjà (dans les deux tables)
+    $stmt = $pdo->prepare("(SELECT email FROM etudiants WHERE email = ?) UNION (SELECT email FROM entreprises WHERE email = ?)");
+    $stmt->execute([$email, $email]);
+    if ($stmt->fetch()) {
+        die("⚠️ Un compte avec cet e-mail existe déjà.");
+    }
 
+    if ($role === 'etudiant') {
         $nom = $_POST['nom_etudiant'] ?? '';
         $prenom = $_POST['prenom'] ?? '';
 
-        $sql = "INSERT INTO etudiants (nom, prenom, email, mdp) VALUES (?, ?, ?, ?)";
+        // Ajout du champ est_valide = 0
+        $sql = "INSERT INTO etudiants (nom, prenom, email, mdp, est_valide) VALUES (?, ?, ?, ?, 0)";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$nom, $prenom, $email, $password]);
 
     } elseif ($role === 'entreprise') {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM entreprises WHERE email = ?");
-        $stmt->execute([$email]);
-        if ($stmt->fetchColumn() > 0) {
-            die("⚠️ Un compte entreprise avec cet e-mail existe déjà.");
-        }
-
         $nom = $_POST['nom_entreprise'] ?? '';
         $adresse = $_POST['adresse'] ?? '';
         $telephone = $_POST['telephone'] ?? '';
 
-        $sql = "INSERT INTO entreprises (nom, adresse, email, telephone, mdp) VALUES (?, ?, ?, ?, ?)";
+        // Ajout du champ est_valide = 0
+        $sql = "INSERT INTO entreprises (nom, adresse, email, telephone, mdp, est_valide) VALUES (?, ?, ?, ?, ?, 0)";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$nom, $adresse, $email, $telephone, $password]);
-
-    } else {
-        die("❌ Rôle invalide.");
     }
 
-    // Affichage d'un message de succès + redirection
+    // Message de confirmation
     echo '
     <!DOCTYPE html>
     <html lang="fr">
     <head>
         <meta charset="UTF-8">
-        <title>Inscription réussie</title>
+        <title>Inscription en attente</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <meta http-equiv="refresh" content="2;url=login.php">
+        <meta http-equiv="refresh" content="5;url=login.html">
         <style>
-            body {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                background-color: #f8f9fa;
-            }
+            body { height: 100vh; display: flex; justify-content: center; align-items: center; background-color: #f8f9fa; }
         </style>
     </head>
     <body>
-        <div class="alert alert-success alert-dismissible fade show text-center" role="alert" style="max-width: 500px;">
-            ✅ Utilisateur créé avec succès ! Redirection vers la page de connexion...
+        <div class="alert alert-info text-center" style="max-width: 500px;">
+            <h4>Inscription soumise avec succès !</h4>
+            <p>Votre compte est en attente de validation par l\'administrateur.</p>
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
     </body>
     </html>';
     exit();
-
-} else {
-    echo "❌ Le formulaire n'a pas été soumis correctement.";
 }
 ?>

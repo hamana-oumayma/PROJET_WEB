@@ -112,12 +112,21 @@ try {
             gap: 8px;
         }
          .btn-back {
-            background-color: #fee2e2;
-            color: #991b1b;
+            background-color: #1e3a5f;
+            color:hsl(218, 100.00%, 98.40%);
             padding: 10px 18px;
             text-decoration: none;
             border-radius: 8px;
             transition: all 0.3s;
+        }
+          .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            margin: 20px auto;
+            max-width: 1200px;
         }
     </style>
 </head>

@@ -46,19 +46,28 @@ $candidatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Candidatures</title>
     <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="assets/page2.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
       
-        .btn-back {
-            background-color: #fee2e2;
-            color: #991b1b;
+         .btn-back {
+            background-color: #1e3a5f;
+            color:hsl(218, 100.00%, 98.40%);
             padding: 10px 18px;
             text-decoration: none;
             border-radius: 8px;
             transition: all 0.3s;
         }
 
-        
+         .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            margin: 20px auto;
+            max-width: 1200px;
+        }
         .status-badge {
             padding: 4px 12px;
             border-radius: 12px;

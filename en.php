@@ -1,9 +1,6 @@
 <?php
 session_start();
-include('database.php'); // Vérifie le bon chemin
-
-$db = new Database();
-$conn = $db->connect();
+require_once 'database.php';
 
 // Vérification de l'authentification
 if (!isset($_SESSION['user_id'])) {
@@ -15,53 +12,37 @@ $database = new Database();
 $db = $database->connect();
 $entreprise_id = $_SESSION['user_id'];
 
-// Récupérer les infos de l'entreprise
+// Récupérer les infos de l'entreprise pour le header
 $query_entreprise = "SELECT nom FROM entreprises WHERE id_entreprise = ?";
 $stmt_entreprise = $db->prepare($query_entreprise);
 $stmt_entreprise->execute([$entreprise_id]);
 $entreprise = $stmt_entreprise->fetch(PDO::FETCH_ASSOC);
 
-// Redirection si l'entreprise n'est pas trouvée
+// Gestion des initiales pour l'avatar
+$initials = 'E'; // Valeur par défaut
+if (!empty($entreprise['nom'])) {
+    $nom = trim($entreprise['nom']);
+    $initials = strtoupper(substr($nom, 0, 1));
+}
+
 if (!$entreprise) {
     session_destroy();
     header("Location: login.php");
     exit();
 }
 
-// Initiales pour avatar
-$initials = 'E';
-if (!empty($entreprise['nom'])) {
-    $nom = trim($entreprise['nom']);
-    $initials = strtoupper(substr($nom, 0, 1));
-}
-
-// Récupérer la note moyenne et le nombre d’avis
-$query_notes = "SELECT 
-    AVG(note) AS moyenne_notes,
-    COUNT(*) AS total_avis 
-FROM avis_entreprises 
-WHERE id_entreprise = :id_entreprise";
-
-$stmt_notes = $db->prepare($query_notes);
-$stmt_notes->bindParam(':id_entreprise', $entreprise_id);
-$stmt_notes->execute();
-$stats_notes = $stmt_notes->fetch(PDO::FETCH_ASSOC);
-
-$moyenne = number_format($stats_notes['moyenne_notes'] ?? 0, 1);
-
-// Récupération des offres
+// Récupération des offres de l'entreprise (sans le statut)
 $query = "SELECT o.*, COUNT(c.id_candidature) as nb_candidatures 
           FROM offres_stage o
           LEFT JOIN candidatures c ON o.id_offre = c.id_offre
-          WHERE o.id_entreprise = ?
+          WHERE o.id_entreprise = ? AND o.est_valide = 1
           GROUP BY o.id_offre
           ORDER BY o.date_publication DESC";
-
 $stmt = $db->prepare($query);
 $stmt->execute([$entreprise_id]);
 $offres = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Récupération des statistiques globales
+// Dans votre requête SQL (après la connexion)
 $statsQuery = "SELECT 
     COUNT(id_offre) as total_offres,
     SUM(CASE WHEN date_fin >= CURDATE() THEN 1 ELSE 0 END) as offres_actives,
@@ -74,7 +55,6 @@ WHERE id_entreprise = ?";
 $stmtStats = $db->prepare($statsQuery);
 $stmtStats->execute([$entreprise_id, $entreprise_id]);
 $stats = $stmtStats->fetch(PDO::FETCH_ASSOC);
-
 // Traitement de la création d'offre
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
     $titre = trim($_POST['titre']);
@@ -83,36 +63,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
     $date_fin = $_POST['date_fin'];
     $motivation_requise = isset($_POST['motivation_requise']) ? 1 : 0;
 
+    // Validation
     $errors = [];
-    if (empty($titre)) $errors[] = "Le titre est requis.";
-    if (empty($description)) $errors[] = "La description est requise.";
-    if (empty($date_debut)) $errors[] = "La date de début est requise.";
-    if (empty($date_fin)) $errors[] = "La date de fin est requise.";
-
-    if (!empty($date_debut) && !empty($date_fin) && $date_debut >= $date_fin) {
-        $errors[] = "La date de fin doit être postérieure à la date de début.";
+    if (empty($titre)) $errors[] = "Le titre est requis";
+    if (empty($description)) $errors[] = "La description est requise";
+    if (empty($date_debut)) $errors[] = "La date de début est requise";
+    if (empty($date_fin)) $errors[] = "La date de fin est requise";
+    
+    if ($date_debut >= $date_fin) {
+        $errors[] = "La date de fin doit être postérieure à la date de début";
     }
 
     if (empty($errors)) {
         $insert_query = "INSERT INTO offres_stage 
-                         (id_entreprise, titre, description, date_debut, date_fin, lettre_motivation_requise)
-                         VALUES (?, ?, ?, ?, ?, ?)";
+                        (id_entreprise, titre, description, date_debut, date_fin, lettre_motivation_requise, est_valide)
+                        VALUES (?, ?, ?, ?, ?, ?, 0)"; // est_valide = 0 par défaut
         $stmt = $db->prepare($insert_query);
-        $success = $stmt->execute([$entreprise_id, $titre, $description, $date_debut, $date_fin, $motivation_requise]);
-
-        if ($success) {
-            $_SESSION['success_message'] = "Offre créée avec succès !";
+        if ($stmt->execute([$entreprise_id, $titre, $description, $date_debut, $date_fin, $motivation_requise])) {
+            $_SESSION['success_message'] = "Offre soumise avec succès! Elle sera visible après validation par l'administrateur.";
             header("Location: entreprise.php");
             exit();
         } else {
-            $_SESSION['error_message'] = "Erreur lors de la création de l'offre.";
+            $_SESSION['error_message'] = "Erreur lors de la création de l'offre";
         }
     } else {
         $_SESSION['error_message'] = implode("<br>", $errors);
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -122,7 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="assets/style.css">
-    <link rel="stylesheet" href="assets/page2.css">
     <style>
         :root {
             --primary-color: #1e3a5f;
@@ -229,8 +206,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
         }
 
         .btn-primary {
-            background-color:rgb(203, 199, 254) !important;
-    color:rgb(153, 49, 250) !important;
+            background-color: #fef3c7;
+            color: #92400e;
         }
 
         table {
@@ -274,17 +251,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
     transform: translateY(-50%); /* Centre verticalement */
 }
 .btn-primary {
-   background-color:rgb(203, 199, 254) !important;
-    color:rgb(153, 49, 250) !important;
+    background-color: #fef3c7;
+    color: #92400e;
    
     transition: none !important; 
 }
 
 
 .btn-primary:hover, .btn-primary:focus {
-
-background-color:rgb(203, 199, 254) !important;
-    color:rgb(151, 41, 253) !important;
+    background-color: #fef3c7 !important;
+    color: #92400e !important;
     transform: none !important;
     box-shadow: none !important;
 }
@@ -309,158 +285,44 @@ background-color:rgb(203, 199, 254) !important;
             min-height: 150px;
         }
 
- 
-/* Style pour la section des statistiques */
-.stats-grid {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin: 30px 0;
+       
+        .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+.stat-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
 }
 
 .stat-card {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    padding: 20px;
-    min-width: 200px;
-    text-align: center;
-    transition: transform 0.3s ease;
-    flex: 1;
-    max-width: 250px;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
+    position: relative;
+    padding-top: 2rem;
 }
 
 .stat-icon {
-    font-size: 24px;
-    color: var(--primary-color);
-    margin-bottom: 15px;
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 10px;
+    border-radius: 50%;
+    color:rgb(153, 49, 250);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-
 .stat-value {
-    font-size: 28px;
-    font-weight: bold;
+    font-size: 2rem;
+    font-weight: 700;
     color: var(--primary-color);
-    margin-bottom: 5px;
 }
-
 .stat-label {
     color: #64748b;
-    font-size: 14px;
 }
 
-.rating-stars {
-    margin-top: 5px;
-}
-
-.text-warning {
-    color: #f59e0b;
-}
-
-.text-muted {
-    color: #cbd5e1;
-}
-
-/* Style pour la section des avis étudiants */
-.section-title {
-    color: var(--primary-color);
-    border-bottom: 2px solid #e2e8f0;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
-}
-
-.avis-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.avis-item {
-    background-color: #f8fafc;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.avis-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.initials {
-    width: 40px;
-    height: 40px;
-    background-color: var(--primary-color);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
-
-.user-name {
-    font-weight: 500;
-    color: var(--dark-text);
-}
-
-.avis-date {
-    font-size: 12px;
-    color: #64748b;
-}
-
-.note {
-    color: #f59e0b;
-    font-size: 18px;
-}
-
-.commentaire {
-    color: #475569;
-    line-height: 1.6;
-}
-
-.btn-secondary {
-    background-color: #e2e8f0;
-    color: #475569;
-    padding: 8px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    margin-top: 10px;
-    transition: all 0.3s;
-}
-
-.btn-secondary:hover {
-    background-color: #cbd5e1;
-}
-
-.alert {
-    padding: 15px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-}
-
-.alert-info {
-    background-color: #eff6ff;
-    color: #1e40af;
-    text-align: center;
-    padding: 20px;
-}
 
     </style>
 </head>
@@ -482,17 +344,12 @@ background-color:rgb(203, 199, 254) !important;
         <ul>
             <li><a href="entreprise.php" class="active"><i class="fas fa-home"></i> Tableau de bord</a></li>
             <li><a href="./entreprise/offreE.php"><i class="fas fa-briefcase"></i> Mes offres</a></li>
+            <li><a href="./entreprise/candidatures.php"><i class="fas fa-file-alt"></i> Candidatures</a></li>
             <li><a href="./entreprise/profilE.php"><i class="fas fa-user"></i> Mon profil</a></li>
-            <li><a href="tous_les_avis.php"><i class="fas fa-comment-dots"></i> Avis</a></li>
         </ul>
     </nav>
 
     <div class="container">
-        <section class="welcome-section">
-        <h2><i class="fas fa-home"></i> Tableau de bord</h2>
-        <p>Optimisez votre recrutement, suivez vos offres et analysez vos candidatures.</p>
-
-    </section>
         <!-- Messages de notification -->
         <?php if (isset($_SESSION['success_message'])): ?>
             <div class="card" style="background-color: #d1fae5; color: #065f46;">
@@ -526,8 +383,6 @@ background-color:rgb(203, 199, 254) !important;
         <div class="stat-label">Candidatures</div>
     </div>
 </div>
-
-
 </div>
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -571,52 +426,6 @@ background-color:rgb(203, 199, 254) !important;
             <?php endif; ?>
             </div>
     </div>
-    <!-- Nouvelle section pour les derniers avis -->
-
-<div class="card">
-    <h3 class="section-title"><i class="fas fa-comments"></i> Derniers avis étudiants</h3>
-    <?php
-    $query_avis = "SELECT a.note, a.commentaire, a.date_avis, e.nom, e.prenom 
-                  FROM avis_entreprises a
-                  JOIN etudiants e ON a.id_etudiant = e.id_etudiant
-                  WHERE a.id_entreprise = :id_entreprise
-                  ORDER BY a.date_avis DESC 
-                  LIMIT 3";
-    $stmt_avis = $conn->prepare($query_avis);
-    $stmt_avis->bindParam(':id_entreprise', $_SESSION['user_id']);
-    $stmt_avis->execute();
-    $derniers_avis = $stmt_avis->fetchAll(PDO::FETCH_ASSOC);
-    ?>
-
-    <?php if(!empty($derniers_avis)): ?>
-        <div class="avis-list">
-            <?php foreach($derniers_avis as $avis): ?>
-            <div class="avis-item">
-                <div class="avis-header">
-                    <div class="user-info">
-                        <div class="initials"><?= strtoupper(substr($avis['prenom'], 0, 1).substr($avis['nom'], 0, 1)) ?></div>
-                        <div>
-                            <div class="user-name"><?= htmlspecialchars($avis['prenom'].' '.$avis['nom']) ?></div>
-                            <div class="avis-date"><?= date('d/m/Y H:i', strtotime($avis['date_avis'])) ?></div>
-                        </div>
-                    </div>
-                    <div class="note">
-                        <?= str_repeat('★', $avis['note']) . str_repeat('☆', 5 - $avis['note']) ?>
-                    </div>
-                </div>
-                <div class="commentaire">
-                    <?= nl2br(htmlspecialchars($avis['commentaire'])) ?>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-        <a href="tous_les_avis.php" class="btn btn-secondary">
-            <i class="fas fa-list"></i> Voir tous les avis
-        </a>
-    <?php else: ?>
-        <div class="alert alert-info">Aucun avis pour le moment</div>
-    <?php endif; ?>
-</div>
         <!-- Modal de création d'offre -->
         <div id="createModal" class="modal">
             <div class="modal-content">

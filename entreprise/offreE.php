@@ -71,14 +71,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
     <title>Gestion des offres</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="../assets/style.css">
+    
     <style>
         /* Styles de base */
         .card {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin: 20px 0;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            margin: 20px auto;
+            max-width: 1200px;
         }
 
         /* Bouton Nouvelle Offre */
@@ -176,8 +179,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['creer_offre'])) {
 }
 
         .btn-back {
-            background-color: #fee2e2;
-            color: #991b1b;
+            background-color: #1e3a5f;
+            color:hsl(218, 100.00%, 98.40%);
             padding: 10px 18px;
             text-decoration: none;
             border-radius: 8px;

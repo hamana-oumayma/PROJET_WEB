@@ -213,7 +213,33 @@ th {
     text-align: center;
 }
 
+/* Évaluation */
+.rating-stars {
+    color: #ffc107;
+    font-size: 1.2rem;
+    margin: 5px 0;
+}
 
+.avis-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.avis-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.user-name {
+    font-weight: 500;
+    color: var(--dark-text);
+}
+
+.text-warning { color: #ffc107; }
+.text-muted { color: #ddd; }
 /* Status Badges */
 .status-badge {
     padding: 5px 10px;

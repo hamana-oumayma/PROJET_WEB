@@ -71,6 +71,43 @@ if (isset($_GET['download'])) {
     require_once 'download_document.php';
     exit;
 }
+
+// 1. Statistiques des candidatures
+$query_stats = "SELECT 
+    COUNT(*) AS total,
+    SUM(statut = 'en_attente') AS en_attente,
+    SUM(statut = 'accepte') AS accepte,
+    SUM(statut = 'refuse') AS refuse
+FROM candidatures 
+WHERE id_etudiant = :user_id";
+
+$stmt_stats = $conn->prepare($query_stats);
+$stmt_stats->bindParam(':user_id', $user_id);
+$stmt_stats->execute();
+$stats_candidatures = $stmt_stats->fetch(PDO::FETCH_ASSOC);
+
+// 2. Documents manquants
+$query_docs = "SELECT COUNT(*) AS documents_manquants 
+               FROM documents 
+               WHERE id_candidature IN (
+                   SELECT id_candidature FROM candidatures WHERE id_etudiant = :user_id
+               ) AND chemin_fichier IS NULL";
+
+$stmt_docs = $conn->prepare($query_docs);
+$stmt_docs->bindParam(':user_id', $user_id);
+$stmt_docs->execute();
+$docs_manquants = $stmt_docs->fetch(PDO::FETCH_ASSOC);
+
+// 3. Dernières offres
+$query_offres = "SELECT o.titre, e.nom AS entreprise, o.date_debut 
+                FROM offres_stage o
+                JOIN entreprises e ON o.id_entreprise = e.id_entreprise
+                ORDER BY o.date_publication DESC 
+                LIMIT 3";
+
+$stmt_offres = $conn->prepare($query_offres);
+$stmt_offres->execute();
+$dernieres_offres = $stmt_offres->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -81,6 +118,7 @@ if (isset($_GET['download'])) {
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/page2.css">
     <style>
         
 .modal {
@@ -233,6 +271,10 @@ if (isset($_GET['download'])) {
     background-color: #fee2e2;
     color: #991b1b;
 }
+
+
+
+
     </style>
 </head>
 <body>
@@ -256,6 +298,9 @@ if (isset($_GET['download'])) {
         <li><a href="./model/candidatures.php"><i class="fas fa-users"></i> Mes candidatures</a></li>
         <li><a href="./model/documents.php"><i class="fas fa-file-contract"></i> Mes documents</a></li>
         <li><a href="./model/profil.php"><i class="fas fa-building"></i> Mon profil</a></li>
+        
+<li><a href="evaluer_entreprise.php"><i class="fas fa-star-half-alt"></i> Évaluer une entreprise</a></li>
+<li><a href="mes_avis.php"><i class="fas fa-comment-dots"></i> Mes avis</a></li>
 
     </ul>
 </nav>
@@ -269,11 +314,49 @@ if (isset($_GET['download'])) {
         <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <section class="welcome-section">
+    <section class="card">
         <h2><i class="fas fa-home"></i> Tableau de bord</h2>
         <p>Consultez vos candidatures, suivez vos stages et gérez vos documents.</p>
     </section>
+<div class="dashboard-container">
+    <div class="card">
+    <h2><i class="fas fa-chart-bar"></i> Statistiques</h2>
+    <div class="stats-grid">
 
+        <div class="stat-card">
+            <i class="fas fa-briefcase stat-icon"></i>
+            <div class="stat-value"><?= $stats_candidatures['total'] ?></div>
+            <div class="stat-label">Candidatures</div>
+        </div>
+
+        <div class="stat-card">
+            <i class="fas fa-hourglass-half stat-icon"></i>
+            <div class="stat-value"><?= $stats_candidatures['en_attente'] ?></div>
+            <div class="stat-label">En attente</div>
+        </div>
+
+        <div class="stat-card">
+            <i class="fas fa-check-circle stat-icon"></i>
+            <div class="stat-value"><?= $stats_candidatures['accepte'] ?></div>
+            <div class="stat-label">Acceptées</div>
+        </div>
+
+        <div class="stat-card">
+            <i class="fas fa-times-circle stat-icon"></i>
+            <div class="stat-value"><?= $stats_candidatures['refuse'] ?></div>
+            <div class="stat-label">Refusées</div>
+        </div>
+
+        <div class="stat-card">
+            <i class="fas fa-file-alt stat-icon"></i>
+            <div class="stat-value"><?= $docs_manquants['documents_manquants'] ?></div>
+            <div class="stat-label">Docs manquants</div>
+        </div>
+
+    </div>
+</div>
+
+        
     <!-- Candidatures -->
     <h3><i class="fas fa-clock"></i> Candidatures récentes</h3>
     <div class="card">
